@@ -57,3 +57,17 @@ overlap_circ.measure_all()
 overlap_circ.draw('mpl')
 print(overlap_circ.draw('text'))
 plt.show()
+
+service = QiskitRuntimeService()
+backend = service.least_busy(operational=True, simulator=False, min_num_qubits=127)
+print("Backend: ", backend.name)
+
+target = backend.target
+pm = generate_preset_pass_manager(target=target, optimization_level=3);
+job = pm.run(overlap_circ)
+
+num_shots = 10_000
+sampler = StatevectorSampler()
+counts = sampler.run([overlap_circ], shots=num_shots).result()[0].data.meas.get_int_counts()
+
+counts.get(0,0.0)/num_shots
